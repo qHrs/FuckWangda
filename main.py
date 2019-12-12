@@ -13,7 +13,7 @@ from lxml import etree
 
 options = webdriver.ChromeOptions()
 
-executable_path = r"D:\Anaconda3\envs\FuckWangda\chromedriver.exe"
+executable_path = r"webdriver\chromedriver.exe"
 
 options.add_argument('--no-sandbox')  # 解决DevToolsActivePort文件不存在的报错
 options.add_argument('window-size=1920x1080')  # 指定浏览器分辨率
@@ -40,28 +40,70 @@ browser.find_element_by_id('D23login').click()
 
 time.sleep(5)
 
-print(browser.title)
 html = browser.page_source
+if html.find("退出账号"):
+    print("登陆成功")
 
-surl = "https://wangda.andedu.net/#/study/subject/detail/e8b602bb-8731-4b5b-8d4d-67c0f1b2eba7"  # 揭秘云计算
+    surl = "https://wangda.andedu.net/#/study/subject/detail/e8b602bb-8731-4b5b-8d4d-67c0f1b2eba7"  # 揭秘云计算
 
-browser.get(surl)
-time.sleep(5)
-html = browser.page_source
-selector = etree.HTML(html)
-classList = selector.xpath('//div[contains(@class,"catalog-state-info")]/div/div[2]/div[1]/text()')
-classStatus = selector.xpath('//div[contains(@class,"catalog-state-info")]/div/div[3]/a/div/text()')
-classIdList = selector.xpath('//div[contains(@class,"catalog-state-info")]/div/div[3]/a/@data-resource-id')
-#for title, status, classId in zip(classList, classStatus, classIdList):
-#    print("%s-%s-%s" % title, status, classId)
+    browser.get(surl)
+    time.sleep(5)
+    html = browser.page_source
+    selector = etree.HTML(html)
+    classList = selector.xpath('//div[contains(@class,"catalog-state-info")]/div/div[2]/div[1]/text()')
+    classStatus = selector.xpath('//div[contains(@class,"catalog-state-info")]/div/div[3]/a/div/text()')
+    classIdList = selector.xpath('//div[contains(@class,"catalog-state-info")]/div/div[3]/a/@data-resource-id')
 
-for title, status, classId in zip(classList, classStatus, classIdList):
-    print("%s - %s - %s" % (title, status, classId))
+    courseList = []
+    for title, status, classId in zip(classList, classStatus, classIdList):
+        if status in ["继续学习", "开始学习"]:
+            course = {}
+            course["name"] = title
+            course["status"] = status
+            course["classId"] = classId
+            courseList.append(course)
 
-# print(html)   data-resource-id  $x('//div[contains(@class,"catalog-state-info")]/div/div[3]/a[contains(@data-resource-id)]')
+    for item in courseList:
+        print("%s - %s - %s" % (item["name"], item["status"], item["classId"]))
 
-#//*[@id="D177studyBtn-67d0102f-8164-43cc-8d7a-01b2b94e4084"]
+    for item in courseList:
+        print("%s 开始学习" % (item["name"]))
 
-# https://wangda.andedu.net/#/study/course/detail/subject-course/d42558f8-ba03-4d23-89ed-c6d8b3fe5fc7/6/e8b602bb-8731-4b5b-8d4d-67c0f1b2eba7
-# $x('//div[contains(@class,"chapter-list")]/ul/li/div/dl/dd/div/span[contains(@class,"progress")]/text()')
+        # 播放
+        # 课程url 0-视频id 1-课程id
+        subjectID = surl.split("/")[7]
+        #browser.get("https://wangda.andedu.net/#/study/course/detail/subject-course/f62887c2-69f3-4e17-ac15-a5b186411ea5/6/73bfb6cd-ad81-4b9e-ac5d-c8694f49eb2d")
+        courseUrl = "https://wangda.andedu.net/#/study/course/detail/subject-course/{0}/6/{1}"
+        browser.get(courseUrl.format(item["classId"], subjectID))
+        # '//div[contains(@class,"chapter-list")]/ul/li/div/dl/dd/div/span[1]/text()'
+
+        playS = ''
+        while True:
+            html = browser.page_source
+            selector = etree.HTML(html)
+            playNewS = selector.xpath('//div[contains(@class,"chapter-list")]/ul/li/div/dl/dd/div/span[1]/text()')
+            if len(playNewS) > 0:
+
+                if playS == "":
+                    playS = playNewS[0]
+                    print(playS)
+
+                if playS in ["重新学习", "学习中"] :
+                    print("%s 已完成" % (item["name"]))
+                    break
+
+                if playS != playNewS[0]:
+                    playS = playNewS[0]
+                    print(playS)
+                else:
+                    print("-", end='')
+
+                time.sleep(2)
+
+    # https://wangda.andedu.net/#/study/course/detail/subject-course/f9a4a6c5-152d-4971-a420-e4416ffcf509/6/e8b602bb-8731-4b5b-8d4d-67c0f1b2eba7
+
+    # print(html)   data-resource-id  $x('//div[contains(@class,"catalog-state-info")]/div/div[3]/a[contains(@data-resource-id)]')
+    #//*[@id="D177studyBtn-67d0102f-8164-43cc-8d7a-01b2b94e4084"]
+    # https://wangda.andedu.net/#/study/course/detail/subject-course/d42558f8-ba03-4d23-89ed-c6d8b3fe5fc7/6/e8b602bb-8731-4b5b-8d4d-67c0f1b2eba7
+    # $x('//div[contains(@class,"chapter-list")]/ul/li/div/dl/dd/div/span[contains(@class,"progress")]/text()')
 
