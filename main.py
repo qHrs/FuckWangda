@@ -13,7 +13,7 @@ from lxml import etree
 
 options = webdriver.ChromeOptions()
 
-executable_path = r"E:\PycharmProjects\FuckWangda\webdriver\chromedriver.exe"
+executable_path = r"D:\PycharmProjects\FuckWangda\webdriver\chromedriver.exe"
 
 options.add_argument('--no-sandbox')  # 解决DevToolsActivePort文件不存在的报错
 options.add_argument('window-size=1920x1080')  # 指定浏览器分辨率
@@ -30,8 +30,10 @@ time.sleep(5)
 
 print(browser.title)
 
-username = "38006067"
-password = "!Q2w3e4r"
+username = "13540098614"
+password = "Fuckwangda2018"
+#username = "13608170940"
+#password = "Linda@135"
 
 # 登录
 browser.find_element_by_id('D23username').send_keys(username)
@@ -45,23 +47,24 @@ if html.find("退出账号"):
     realName = browser.find_element_by_xpath('//div[@class="user-info-top"]/div[2]/div[1]/div[1]').get_attribute("innerText")
     print("%s 登陆成功" % realName)
 
-    # 课程url
-    urls = ["https://wangda.andedu.net/#/study/subject/detail/85400297-7e8b-4dab-88a4-7959cfa0fd10",
-            "https://wangda.andedu.net/#/study/subject/detail/33b5fe33-79ba-47dc-bec0-3b7a5ce7b2ce",
-            "https://wangda.andedu.net/#/study/subject/detail/49060db8-fd8a-401e-aaf1-727281900af1",
-            "https://wangda.andedu.net/#/study/subject/detail/73bfb6cd-ad81-4b9e-ac5d-c8694f49eb2d",
-            "https://wangda.andedu.net/#/study/subject/detail/271080e4-0e39-4f7b-961c-cc0e5bffba2b",
-            "https://wangda.andedu.net/#/study/subject/detail/46b0c273-0eb2-4cba-9117-af13f751813b",
-            "https://wangda.andedu.net/#/study/subject/detail/1a7a41e5-6b7c-4074-b2d7-7c85a857280e",
-            "https://wangda.andedu.net/#/study/subject/detail/e8b602bb-8731-4b5b-8d4d-67c0f1b2eba7",
-            "https://wangda.andedu.net/#/study/subject/detail/a8dfcf08-a8fa-4963-9a6e-44448a540e28"]
+    # 专题ID
+    subjectIDList = ["85400297-7e8b-4dab-88a4-7959cfa0fd10",
+            "33b5fe33-79ba-47dc-bec0-3b7a5ce7b2ce",
+            "49060db8-fd8a-401e-aaf1-727281900af1",
+            "73bfb6cd-ad81-4b9e-ac5d-c8694f49eb2d",
+            "271080e4-0e39-4f7b-961c-cc0e5bffba2b",
+            "46b0c273-0eb2-4cba-9117-af13f751813b",
+            "1a7a41e5-6b7c-4074-b2d7-7c85a857280e",
+            "e8b602bb-8731-4b5b-8d4d-67c0f1b2eba7",
+            "a8dfcf08-a8fa-4963-9a6e-44448a540e28"]
 
     # 永远都学不完的bug
     #bugUrl = ["40f280e7-09f1-43e4-b7da-5e1edd70f1e1"]
     bugUrl = []
 
-    for url in urls:
-        browser.get(url)
+    for subjectID in subjectIDList:
+        url = "https://wangda.andedu.net/#/study/subject/detail/{0}"
+        browser.get(url.format(subjectID))
         time.sleep(5)
         html = browser.page_source
         # browser.find_element_by_xpath
@@ -88,9 +91,9 @@ if html.find("退出账号"):
 
             # 播放
             # 课程url 0-视频id 1-课程id
-            subjectID = url.split("/")[7]
             courseUrl = "https://wangda.andedu.net/#/study/course/detail/subject-course/{0}/6/{1}"
             browser.get(courseUrl.format(item["classId"], subjectID))
+            print(browser.current_url)
             # 等待播放
             time.sleep(8)
 
@@ -101,6 +104,10 @@ if html.find("退出账号"):
                 # 暂停检查，已暂停则跳出循环
                 if html.find("vjs-paused") > 0:
                     print("\n已暂停")
+                    # ($x('//div[@class="vjs-control-bar"]/button[1]')[0]).click()
+                    playButton = browser.find_element_by_xpath('//div[@class="vjs-control-bar"]/button[1]')
+                    if playButton:
+                        print(playButton.text)
                     #browser.refresh()
                     #time.sleep(5)
                     break
@@ -112,22 +119,22 @@ if html.find("退出账号"):
 
                     # 检查是否已完成
                     if playNewS[0] == "重新学习":
-                        print("%s 已完成1" % (item["name"]))
+                        print("\r%s 已完成1" % (item["name"]))
                         break
 
                     if playS == "":
                         playS = playNewS[0]
-                        print("%s" % playS)
+                        print("\r%s" % playS)
 
                     if playS != playNewS[0]:
                         playS = playNewS[0]
-                        print(playS)
+                        print("\r%s" % playS)
                     else:
                         print("-", end='')
 
                     if playS == "重新学习" :
-                        print("%s 已完成2" % (item["name"]))
+                        print("\r%s 已完成2" % (item["name"]))
                         break
 
-                    time.sleep(2)
+                    time.sleep(5)
 
