@@ -106,12 +106,13 @@ if html.find("退出账号"):
                 if html.find("vjs-paused") > 0:
                     print("\r已暂停")
                     # 暂停处理
+                    time.sleep(2)
                     playButton = browser.find_element_by_xpath('//div[@class="vjs-control-bar"]/button[1]')
-                    if playButton:
-                        print(playButton.text)
+                    if playButton.text == "播放":
                         try:
                             playButton.send_keys(Keys.ENTER)
-                            print("\r重新播放")
+                            time.sleep(2)
+                            print("\r%s 继续播放" % browser.title)
                         except Exception as re:
                             print("处理错误:%s" % str(re))
                             break
@@ -123,7 +124,7 @@ if html.find("退出账号"):
 
                     # 检查是否已完成
                     if playNewS[0] == "重新学习":
-                        print("\r%s 已完成" % (item["name"]))
+                        print("\r%s 已完成" % browser.title)
                         break
 
                     if playS == "":
