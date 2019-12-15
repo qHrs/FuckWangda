@@ -9,6 +9,7 @@
 
 from selenium import webdriver
 import time
+from selenium.webdriver.common.keys import Keys
 from lxml import etree
 
 options = webdriver.ChromeOptions()
@@ -48,15 +49,15 @@ if html.find("退出账号"):
     print("%s 登陆成功" % realName)
 
     # 专题ID
-    subjectIDList = ["85400297-7e8b-4dab-88a4-7959cfa0fd10",
-            "33b5fe33-79ba-47dc-bec0-3b7a5ce7b2ce",
-            "49060db8-fd8a-401e-aaf1-727281900af1",
-            "73bfb6cd-ad81-4b9e-ac5d-c8694f49eb2d",
-            "271080e4-0e39-4f7b-961c-cc0e5bffba2b",
-            "46b0c273-0eb2-4cba-9117-af13f751813b",
-            "1a7a41e5-6b7c-4074-b2d7-7c85a857280e",
-            "e8b602bb-8731-4b5b-8d4d-67c0f1b2eba7",
-            "a8dfcf08-a8fa-4963-9a6e-44448a540e28"]
+    subjectIDList = ["a8dfcf08-a8fa-4963-9a6e-44448a540e28",
+                     "33b5fe33-79ba-47dc-bec0-3b7a5ce7b2ce",
+                     "49060db8-fd8a-401e-aaf1-727281900af1",
+                     "73bfb6cd-ad81-4b9e-ac5d-c8694f49eb2d",
+                     "271080e4-0e39-4f7b-961c-cc0e5bffba2b",
+                     "46b0c273-0eb2-4cba-9117-af13f751813b",
+                     "1a7a41e5-6b7c-4074-b2d7-7c85a857280e",
+                     "85400297-7e8b-4dab-88a4-7959cfa0fd10",
+                     "e8b602bb-8731-4b5b-8d4d-67c0f1b2eba7"]
 
     # 永远都学不完的bug
     #bugUrl = ["40f280e7-09f1-43e4-b7da-5e1edd70f1e1"]
@@ -93,7 +94,7 @@ if html.find("退出账号"):
             # 课程url 0-视频id 1-课程id
             courseUrl = "https://wangda.andedu.net/#/study/course/detail/subject-course/{0}/6/{1}"
             browser.get(courseUrl.format(item["classId"], subjectID))
-            print(browser.current_url)
+            #print(browser.current_url)
             # 等待播放
             time.sleep(8)
 
@@ -103,14 +104,17 @@ if html.find("退出账号"):
 
                 # 暂停检查，已暂停则跳出循环
                 if html.find("vjs-paused") > 0:
-                    print("\n已暂停")
-                    # ($x('//div[@class="vjs-control-bar"]/button[1]')[0]).click()
+                    print("\r已暂停")
+                    # 暂停处理
                     playButton = browser.find_element_by_xpath('//div[@class="vjs-control-bar"]/button[1]')
                     if playButton:
                         print(playButton.text)
-                    #browser.refresh()
-                    #time.sleep(5)
-                    break
+                        try:
+                            playButton.send_keys(Keys.ENTER)
+                            print("\r重新播放")
+                        except Exception as re:
+                            print("处理错误:%s" % str(re))
+                            break
 
                 # 检查学习进度及完成状态，完成则退出循环进入下一节
                 selector = etree.HTML(html)
@@ -119,7 +123,7 @@ if html.find("退出账号"):
 
                     # 检查是否已完成
                     if playNewS[0] == "重新学习":
-                        print("\r%s 已完成1" % (item["name"]))
+                        print("\r%s 已完成" % (item["name"]))
                         break
 
                     if playS == "":
@@ -132,9 +136,8 @@ if html.find("退出账号"):
                     else:
                         print("-", end='')
 
-                    if playS == "重新学习" :
-                        print("\r%s 已完成2" % (item["name"]))
-                        break
-
                     time.sleep(5)
+
+# 关闭浏览器
+browser.close()
 
