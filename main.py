@@ -100,7 +100,28 @@ if html.find("退出账号"):
             playS = ''
             while True:
                 html = browser.page_source
+                selector = etree.HTML(html)
+                course_name = selector.xpath("//dt/div[contains(@class,\"text-overflow\")]/@title")
+                course_status = selector.xpath("//div[contains(@class,\"item continue pointer\")]/span/text()")
 
+                course_finish = True
+                for name, status in zip(course_name, course_status):
+                    # print("%s -- %s" % (name, status))
+                    # 判断课程状态如果不为 重新学习，则修改课程状态为未完成，继续学习
+                    if status != "重新学习":
+                        current_time = selector.xpath("//div[contains(@class,\"vjs-current-time-display\")]/text()")
+                        duration = selector.xpath("//div[contains(@class,\"vjs-duration-display\")]/text()")
+                        print("%s -- %s  %s/%s" % (name, status, current_time, duration))
+                        course_finish = False
+                        time.sleep(10)
+                        break
+
+                # 课程已完成，则退出
+                if course_finish:
+                    print("\r已完成")
+                    break
+
+'''
                 # 暂停检查，已暂停则跳出循环
                 if html.find("vjs-paused") > 0:
                     print("\r已暂停")
@@ -137,7 +158,7 @@ if html.find("退出账号"):
                         print("-", end='')
 
                     time.sleep(5)
-
+'''
 # 关闭浏览器
 browser.close()
 
