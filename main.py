@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-#
+﻿# -*- coding: utf-8 -*-#
 
 #-------------------------------------------------------------------------------
 # Name:         main
@@ -37,9 +37,9 @@ password = "!Q2w3e4r"
 #password = "Linda@135"
 
 # 登录
-browser.find_element_by_id('D31username').send_keys(username)
-browser.find_element_by_id('D31password').send_keys(password)
-browser.find_element_by_id('D31login').click()
+browser.find_element_by_id('D33username').send_keys(username)
+browser.find_element_by_id('D33password').send_keys(password)
+browser.find_element_by_id('D33login').click()
 
 time.sleep(5)
 
@@ -49,7 +49,7 @@ if html.find("退出账号"):
     print("%s 登陆成功" % realName)
 
     # 专题ID
-    subjectIDList = ["c4cbf55f-0490-412e-a13a-2fa456e38e11"]
+    subjectIDList = ["aad0112b-09e5-428e-af6b-2e74cd661a5c"]
 
     # 永远都学不完的bug
     #bugUrl = ["40f280e7-09f1-43e4-b7da-5e1edd70f1e1"]
@@ -66,12 +66,14 @@ if html.find("退出账号"):
         # //div[contains(@class,"catalog-state-info")]/div/div[3]/a/div/text()
         # //div[contains(@class,"catalog-state-info")]/div/div[3]/a/@data-resource-id
         # 20200214 //a[contains(@class,\"btn small\")]/@data-resource-id
+        # //div[contains(@class,\"inline-block title\")]/div/@title
+        # selector.xpath("//div[contains(@class,\"inline-block title\")]/div/@title")
         # 课程标题
-        classList = selector.xpath("//div[contains(@class,\"text-overflow title\")]/@title")
+        classList = selector.xpath("//div[contains(@class,\"inline-block title\")]/div/@title")
         # 课程状态
-        classStatus = selector.xpath("//a[contains(@class,\"btn small\")]/text()")
+        classStatus = selector.xpath("//div[contains(@class,\"btn small custom-bg-color-2\")]/text()")
         # 课程ID
-        classIdList = selector.xpath("//a[contains(@class,\"btn small\")]/@data-resource-id")
+        classIdList = selector.xpath("//a[contains(@class,\"normal\")]/@data-resource-id")
 
         courseList = []
         for title, status, classId in zip(classList, classStatus, classIdList):
@@ -121,14 +123,14 @@ if html.find("退出账号"):
                     print("\r已完成")
                     break
 
-'''
+
                 # 暂停检查，已暂停则跳出循环
                 if html.find("vjs-paused") > 0:
                     print("\r已暂停")
                     # 暂停处理
                     time.sleep(2)
-                    playButton = browser.find_element_by_xpath('//div[@class="vjs-control-bar"]/button[1]')
-                    if playButton.text == "播放":
+                    playButton = selector.xpath("//button[contains(@class,\"vjs-play-control vjs-control vjs-button\")]")
+                    if playButton.title == "播放":
                         try:
                             playButton.send_keys(Keys.ENTER)
                             time.sleep(2)
@@ -139,7 +141,7 @@ if html.find("退出账号"):
 
                 # 检查学习进度及完成状态，完成则退出循环进入下一节
                 selector = etree.HTML(html)
-                playNewS = selector.xpath('//div[contains(@class,"chapter-list")]/ul/li/div/dl/dd/div/span[1]/text()')
+                playNewS = selector.xpath("//div[contains(@class,\"chapter-list\")]/ul/li/div/dl/dd/div/span[1]/text()")
                 if len(playNewS) > 0:
 
                     # 检查是否已完成
@@ -158,7 +160,7 @@ if html.find("退出账号"):
                         print("-", end='')
 
                     time.sleep(5)
-'''
+''''''
 # 关闭浏览器
 browser.close()
 
